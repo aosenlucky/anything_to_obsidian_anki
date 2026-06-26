@@ -1,7 +1,11 @@
 import { NextRequest } from "next/server";
 
+import { cleanEnvValue } from "@/lib/env";
+
 export function requireToken(request: NextRequest, expected: string | undefined, label: string) {
-  if (!expected) {
+  const expectedToken = cleanEnvValue(expected);
+
+  if (!expectedToken) {
     return { ok: false, status: 500, message: `${label} is not configured` };
   }
 
@@ -12,7 +16,7 @@ export function requireToken(request: NextRequest, expected: string | undefined,
   const headerToken = request.headers.get(`x-${label.toLowerCase().replace("_", "-")}`) || "";
   const token = bearer || headerToken;
 
-  if (token !== expected) {
+  if (token.trim() !== expectedToken) {
     return { ok: false, status: 401, message: "Unauthorized" };
   }
 

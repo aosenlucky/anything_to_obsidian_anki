@@ -2,6 +2,8 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 
+import { cleanEnvValue } from "@/lib/env";
+
 export type InboxItem = {
   id: string;
   title: string | null;
@@ -20,8 +22,8 @@ export type InboxItem = {
 };
 
 export function getSupabaseAdmin() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = cleanEnvValue(process.env.SUPABASE_URL);
+  const key = cleanEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY);
 
   if (!url || !key) {
     throw new Error("Supabase environment variables are not configured.");

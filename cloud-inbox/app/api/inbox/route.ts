@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (findError) {
-    return NextResponse.json({ error: findError.message }, { status: 500 });
+    return supabaseError(findError.message);
   }
 
   if (existing) {
@@ -53,10 +53,19 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return supabaseError(error.message);
   }
 
   return NextResponse.json({ ok: true, duplicate: false, item: data });
+}
+
+function supabaseError(message: string) {
+  const normalized = message.toLowerCase();
+  const error = normalized.includes("invalid api key")
+    ? "Supabase API key 无效。请检查 EdgeOne 环境变量 SUPABASE_SERVICE_ROLE_KEY，值应为 Supabase 的 Secret key 或 service_role key，不要填 Published/anon key。"
+    : message;
+
+  return NextResponse.json({ error }, { status: 500 });
 }
 
 function textOrNull(value: unknown) {
