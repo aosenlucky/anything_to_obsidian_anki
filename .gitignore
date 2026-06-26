@@ -1,0 +1,15 @@
+.env
+.env.local
+config.yaml
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+app/storage/*.bak
+.vercel/
+secrets.generated.env
+cloud-inbox/node_modules/
+cloud-inbox/.next/
+cloud-inbox/.vercel/
+cloud-inbox/secrets.generated.env
+cloud-inbox/vercel.env

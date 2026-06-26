@@ -1,0 +1,43 @@
+obsidian:
+  vault_path: "D:/Obsidian/MyVault"
+  sources_path: "10_Sources"
+  notes_path: "20_Notes"
+  reviews_path: "50_Reviews"
+
+ai:
+  provider: "deepseek"
+  api_key_env: "DEEPSEEK_API_KEY"
+  base_url: "https://api.deepseek.com"
+  model: "v4-pro"
+  temperature: 0.2
+  max_output_tokens: 8192
+  thinking_enabled: true
+  reasoning_effort: "high"
+
+anki:
+  enabled: true
+  ankiconnect_url: "http://127.0.0.1:8765"
+  default_deck_prefix: "Learning"
+  note_type: "Basic"
+
+processing:
+  require_user_confirmation: true
+  max_notes_per_source: 3
+  max_cards_per_note: 5
+  default_source_status: "unprocessed"
+
+cloud_inbox:
+  enabled: false
+  api_url: "https://your-inbox.vercel.app"
+  agent_token_env: "CLOUD_INBOX_AGENT_TOKEN"
+  poll_limit: 10
+
+domains:
+  - Cloud
+  - AI
+  - English
+  - History
+  - General
+  - Parenting
+  - Travel
+  - Wealth

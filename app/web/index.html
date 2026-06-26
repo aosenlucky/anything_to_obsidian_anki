@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Learning Asset Processor</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <h1>Learning Asset Processor</h1>
+          <p>Obsidian · DeepSeek · AnkiConnect</p>
+        </div>
+      </div>
+      <div class="status-strip" aria-live="polite">
+        <span id="deepseekStatus">DeepSeek API：检查中</span>
+        <span id="ankiStatus">AnkiConnect：检查中</span>
+        <span id="vaultStatus">Obsidian Vault：检查中</span>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="workspace">
+        <form id="captureForm" class="panel input-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Source Capture</p>
+              <h2>原始材料</h2>
+            </div>
+            <button type="button" id="statusBtn" class="ghost-btn">检查连接状态</button>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              来源类型
+              <select name="source_type">
+                <option value="article">文章</option>
+                <option value="book">书籍</option>
+                <option value="video">视频</option>
+                <option value="course">课程</option>
+                <option value="conversation">对话</option>
+                <option value="manual">手动</option>
+              </select>
+            </label>
+            <label>
+              领域提示
+              <select name="domain_hint">
+                <option value="">自动判断</option>
+                <option>Cloud</option>
+                <option>AI</option>
+                <option>English</option>
+                <option>History</option>
+                <option>General</option>
+                <option>Parenting</option>
+                <option>Travel</option>
+                <option>Wealth</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            标题
+            <input name="title" type="text" placeholder="可选" />
+          </label>
+
+          <label>
+            加工意图
+            <textarea name="my_intent" rows="3" placeholder="例如：加工成 RAG 方案框架和客户话术"></textarea>
+          </label>
+
+          <label>
+            原始内容
+            <textarea name="raw_input" rows="13" required placeholder="粘贴 URL、原文、字幕、摘录、会议纪要或手动文本"></textarea>
+          </label>
+
+          <div class="action-row">
+            <button type="submit" id="captureBtn" class="primary-btn">保存原始材料</button>
+            <button type="button" id="processBtn" class="secondary-btn" disabled>开始 AI 分析</button>
+            <button type="button" id="writeBtn" class="secondary-btn" disabled>写入 Obsidian</button>
+          </div>
+        </form>
+
+        <section class="panel result-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Processing Preview</p>
+              <h2>处理结果</h2>
+            </div>
+            <span id="sourcePath" class="path-chip">未保存 Source</span>
+          </div>
+
+          <div class="summary-grid">
+            <div>
+              <span>识别领域</span>
+              <strong id="domainValue">-</strong>
+            </div>
+            <div>
+              <span>知识类型</span>
+              <strong id="typeValue">-</strong>
+            </div>
+            <div>
+              <span>优先级</span>
+              <strong id="priorityValue">-</strong>
+            </div>
+            <div>
+              <span>复习方式</span>
+              <strong id="reviewValue">-</strong>
+            </div>
+          </div>
+
+          <section class="preview-section">
+            <div class="section-title">
+              <h3>AI Analysis</h3>
+              <span id="reviewFlag">等待分析</span>
+            </div>
+            <p id="summaryText" class="muted-text">暂无摘要</p>
+          </section>
+
+          <section class="preview-section">
+            <div class="section-title">
+              <h3>Generated Notes Preview</h3>
+              <span id="notesCount">0 篇</span>
+            </div>
+            <div id="notesPreview" class="list-stack empty-state">暂无 Note</div>
+          </section>
+
+          <section class="preview-section">
+            <div class="section-title">
+              <h3>Anki Cards Preview</h3>
+              <span id="cardsCount">0 张</span>
+            </div>
+            <div id="cardsPreview" class="list-stack empty-state">暂无卡片</div>
+            <div class="action-row compact">
+              <button type="button" id="syncBtn" class="primary-btn" disabled>同步到 Anki</button>
+            </div>
+          </section>
+
+          <section class="preview-section">
+            <div class="section-title">
+              <h3>Review Panel</h3>
+              <span id="reviewPath">未生成</span>
+            </div>
+            <div class="action-row compact">
+              <button type="button" id="weeklyBtn" class="ghost-btn">生成周复盘</button>
+              <button type="button" id="monthlyBtn" class="ghost-btn">生成月复盘</button>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+Phrase: "Let's align on the decision criteria before comparing vendors."
+
+Meaning: 在比较供应商之前，先统一决策标准。
+
+Use cases:
+1. Pre-sales solution discussion.
+2. Internal project meeting.
+3. Vendor evaluation workshop.
+
+Better expression:
+"Before we compare vendors, let's agree on what success looks like and which criteria matter most."
