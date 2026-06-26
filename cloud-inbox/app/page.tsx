@@ -41,7 +41,8 @@ export default function Page() {
     setState("saving");
     setMessage("");
 
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const payload = Object.fromEntries(form.entries());
     delete payload.token;
     window.localStorage.setItem("lap_inbox_token", token);
@@ -61,7 +62,7 @@ export default function Page() {
       }
       setState("saved");
       setMessage(data.duplicate ? "这条内容已经在队列里。" : "已收下，等待本地 Agent 拉取。");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (error) {
       setState("error");
       setMessage(error instanceof Error ? error.message : "保存失败");
