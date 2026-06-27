@@ -34,6 +34,12 @@ function setBusy(button, busy) {
   button.textContent = busy ? "处理中..." : button.dataset.label;
 }
 
+function setCommandBusy(button, busy) {
+  if (!button) return;
+  button.disabled = busy;
+  button.classList.toggle("is-busy", busy);
+}
+
 async function refreshStatus() {
   try {
     const result = await api("/api/status");
@@ -43,6 +49,56 @@ async function refreshStatus() {
   } catch (error) {
     toast(error.message);
   }
+}
+
+async function runCloudPull(button, options, successLabel) {
+  setCommandBusy(button, true);
+  $("lastRun").textContent = "云端同步中";
+  try {
+    const result = await api("/api/cloud/pull", {
+      method: "POST",
+      body: JSON.stringify(options),
+    });
+    renderCloudResult(result);
+    toast(`${successLabel}：拉取 ${result.pulled} 条`);
+    await refreshStatus();
+  } catch (error) {
+    $("lastRun").textContent = "操作失败";
+    toast(error.message);
+  } finally {
+    setCommandBusy(button, false);
+  }
+}
+
+function renderCloudResult(result) {
+  const rows = result.results || [];
+  $("lastRun").textContent = rows.length ? `最近处理 ${rows.length} 条` : "云端暂无新内容";
+  $("notesCount").textContent = `${rows.reduce((total, row) => total + (row.note_paths || []).length, 0)} 篇`;
+  $("cardsCount").textContent = `${rows.reduce((total, row) => total + (row.card_count || 0), 0)} 张`;
+
+  $("notesPreview").classList.toggle("empty-state", rows.length === 0);
+  $("notesPreview").innerHTML = rows.length
+    ? rows.map(renderCloudRow).join("")
+    : "云端队列里暂无待处理内容";
+
+  $("cardsPreview").classList.add("empty-state");
+  $("cardsPreview").innerHTML = rows.length
+    ? "完整同步会直接把生成的卡片送往 Anki；本区只预览本地手动分析产生的卡片。"
+    : "暂无卡片";
+}
+
+function renderCloudRow(row) {
+  const notes = (row.note_paths || []).map((path) => `<li>${escapeHtml(path)}</li>`).join("");
+  const statusClass = row.status === "processed" ? "ok" : "fail";
+  return `
+    <article class="run-item ${statusClass}">
+      <div>
+        <strong>${escapeHtml(row.source_path || row.id)}</strong>
+        <p>${row.status === "processed" ? "已完成" : escapeHtml(row.error || "处理失败")}</p>
+      </div>
+      ${notes ? `<ul>${notes}</ul>` : ""}
+    </article>
+  `;
 }
 
 function formPayload(form) {
@@ -202,6 +258,15 @@ $("syncBtn").addEventListener("click", async () => {
 $("weeklyBtn").addEventListener("click", () => createReview("weekly"));
 $("monthlyBtn").addEventListener("click", () => createReview("monthly"));
 $("statusBtn").addEventListener("click", refreshStatus);
+$("cloudObsidianBtn").addEventListener("click", () =>
+  runCloudPull($("cloudObsidianBtn"), { process_ai: false, sync_anki: false }, "已拉取到 Obsidian")
+);
+$("cloudAiBtn").addEventListener("click", () =>
+  runCloudPull($("cloudAiBtn"), { process_ai: true, sync_anki: false }, "已拉取并写入笔记")
+);
+$("cloudFullBtn").addEventListener("click", () =>
+  runCloudPull($("cloudFullBtn"), { process_ai: true, sync_anki: true }, "已完整同步")
+);
 
 async function createReview(kind) {
   const button = kind === "weekly" ? $("weeklyBtn") : $("monthlyBtn");

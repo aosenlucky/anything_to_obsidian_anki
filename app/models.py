@@ -72,6 +72,13 @@ class SyncResult(BaseModel):
     errors: list[str] = Field(default_factory=list)
 
 
+class CloudPullRequest(BaseModel):
+    process_ai: bool = False
+    sync_anki: bool = False
+    limit: int | None = None
+    dry_run: bool = False
+
+
 class StatusResult(BaseModel):
     deepseek: str
     anki: str

@@ -51,13 +51,13 @@ class AnkiConnectClient:
         self.ensure_deck(card.deck)
         model_fields = set(self.model_field_names(card.note_type))
         fields = {
-            "Front": html.escape(card.front),
-            "Back": html.escape(card.back),
+            "Front": _format_front(card.front),
+            "Back": _format_back(card.back),
         }
         if "Source" in model_fields:
-            fields["Source"] = html.escape(card.source_note or card.source)
+            fields["Source"] = html.escape(_short_source(card.source_note or card.source))
         if "Section" in model_fields:
-            fields["Section"] = html.escape(card.source)
+            fields["Section"] = ""
         payload = {
             "note": {
                 "deckName": card.deck,
@@ -142,3 +142,23 @@ def _load_db(path: Path) -> dict[str, Any]:
 def _save_db(path: Path, db: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(db, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _format_front(value: str) -> str:
+    text = html.escape(value.strip())
+    return f'<div class="lap-front">{text}</div>'
+
+
+def _format_back(value: str) -> str:
+    paragraphs = [part.strip() for part in value.splitlines() if part.strip()]
+    if not paragraphs:
+        paragraphs = [value.strip()]
+    body = "".join(f"<p>{html.escape(part)}</p>" for part in paragraphs)
+    return f'<div class="lap-answer">{body}</div>'
+
+
+def _short_source(value: str) -> str:
+    if not value:
+        return ""
+    stem = Path(value).stem
+    return stem[:72]

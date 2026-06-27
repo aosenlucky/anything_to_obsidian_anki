@@ -22,11 +22,12 @@ def create_app():
     from fastapi.responses import FileResponse
     from fastapi.staticfiles import StaticFiles
 
-    from app.api import routes_anki, routes_capture, routes_process, routes_review, routes_status
+    from app.api import routes_anki, routes_capture, routes_cloud, routes_process, routes_review, routes_status
 
     api = FastAPI(title="Learning Asset Processor", version="0.1.0")
     api.include_router(routes_status.router)
     api.include_router(routes_capture.router)
+    api.include_router(routes_cloud.router)
     api.include_router(routes_process.router)
     api.include_router(routes_anki.router)
     api.include_router(routes_review.router)
