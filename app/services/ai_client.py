@@ -18,7 +18,7 @@ class DeepSeekClient:
         ai_config = config.section("ai")
         self.provider = ai_config.get("provider", "deepseek")
         self.base_url = ai_config.get("base_url", "https://api.deepseek.com")
-        self.model = ai_config.get("model", "v4-pro")
+        self.model = ai_config.get("model", "deepseek-v4-pro")
         self.temperature = float(ai_config.get("temperature", 0.2))
         self.max_output_tokens = int(ai_config.get("max_output_tokens", 8192))
         api_key_env = ai_config.get("api_key_env", "DEEPSEEK_API_KEY")

@@ -40,20 +40,29 @@ class AnkiConnectClient:
     def deck_names(self) -> list[str]:
         return list(self.request("deckNames") or [])
 
+    def model_field_names(self, model_name: str) -> list[str]:
+        return list(self.request("modelFieldNames", {"modelName": model_name}) or [])
+
     def ensure_deck(self, deck: str) -> None:
         if deck not in self.deck_names():
             self.request("createDeck", {"deck": deck})
 
     def add_basic_card(self, card: AnkiCard) -> int:
         self.ensure_deck(card.deck)
+        model_fields = set(self.model_field_names(card.note_type))
+        fields = {
+            "Front": html.escape(card.front),
+            "Back": html.escape(card.back),
+        }
+        if "Source" in model_fields:
+            fields["Source"] = html.escape(card.source_note or card.source)
+        if "Section" in model_fields:
+            fields["Section"] = html.escape(card.source)
         payload = {
             "note": {
                 "deckName": card.deck,
                 "modelName": card.note_type,
-                "fields": {
-                    "Front": html.escape(card.front),
-                    "Back": html.escape(card.back),
-                },
+                "fields": fields,
                 "tags": card.tags,
                 "options": {"allowDuplicate": False},
             }

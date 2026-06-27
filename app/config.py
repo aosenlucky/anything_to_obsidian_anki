@@ -59,7 +59,7 @@ def _deep_merge(defaults: dict[str, Any], overrides: dict[str, Any]) -> dict[str
 
 
 def load_config(config_path: str | Path | None = None) -> AppConfig:
-    load_dotenv(ENV_PATH)
+    load_dotenv(ENV_PATH, encoding="utf-8-sig")
     env_config = os.getenv("LAP_CONFIG")
     selected = Path(config_path or env_config or DEFAULT_CONFIG_PATH)
 

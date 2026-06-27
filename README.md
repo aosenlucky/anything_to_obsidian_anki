@@ -39,7 +39,7 @@ DeepSeek 模型名不是硬编码。默认是：
 ai:
   provider: "deepseek"
   base_url: "https://api.deepseek.com"
-  model: "v4-pro"
+  model: "deepseek-v4-pro"
 ```
 
 可以改成 DeepSeek 当前实际可用的模型名，例如：
