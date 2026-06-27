@@ -63,7 +63,9 @@ class CloudInboxClient:
         headers = kwargs.pop("headers", {})
         headers["Authorization"] = f"Bearer {self.token}"
         try:
-            response = requests.request(
+            session = requests.Session()
+            session.trust_env = False
+            response = session.request(
                 method,
                 f"{self.api_url}{path}",
                 headers=headers,
@@ -74,8 +76,8 @@ class CloudInboxClient:
             return self._request_with_powershell(method, path, headers=headers, **kwargs)
         try:
             data = response.json()
-        except ValueError as exc:
-            raise CloudInboxError(f"Cloud Inbox 返回了非 JSON 响应：HTTP {response.status_code}") from exc
+        except ValueError:
+            return self._request_with_powershell(method, path, headers=headers, **kwargs)
         if response.status_code >= 400:
             raise CloudInboxError(data.get("error") or f"Cloud Inbox HTTP {response.status_code}")
         return data

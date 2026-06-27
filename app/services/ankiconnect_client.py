@@ -22,7 +22,9 @@ class AnkiConnectClient:
 
     def request(self, action: str, params: dict[str, Any] | None = None) -> Any:
         payload = {"action": action, "version": 6, "params": params or {}}
-        response = requests.post(self.url, json=payload, timeout=8)
+        session = requests.Session()
+        session.trust_env = False
+        response = session.post(self.url, json=payload, timeout=8)
         response.raise_for_status()
         data = response.json()
         if data.get("error"):
