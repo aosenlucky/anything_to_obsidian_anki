@@ -46,9 +46,64 @@ async function refreshStatus() {
     $("deepseekStatus").textContent = result.deepseek;
     $("ankiStatus").textContent = result.anki;
     $("vaultStatus").textContent = result.obsidian;
+    await refreshAutomation();
   } catch (error) {
     toast(error.message);
   }
+}
+
+async function refreshAutomation() {
+  const [status, runs] = await Promise.all([
+    api("/api/automation/status"),
+    api("/api/automation/runs?limit=6"),
+  ]);
+  renderAutomationStatus(status);
+  renderAutomationRuns(runs.runs || []);
+}
+
+function renderAutomationStatus(status) {
+  const enabled = status.automation_enabled && !status.paused;
+  const running = Boolean(status.is_running);
+  $("automationBadge").textContent = running ? "运行中" : enabled ? "已开启" : "已暂停";
+  $("automationBadge").className = `status-badge ${running ? "running" : enabled ? "enabled" : "paused"}`;
+  $("automationMode").textContent = modeLabel(status.mode);
+  $("automationRunning").textContent = running ? "正在同步" : "空闲";
+  $("automationLast").textContent = status.last_finished_at || status.last_started_at || "-";
+  $("automationNext").textContent = enabled ? status.next_run_at || "待计算" : "已暂停";
+  $("automationMessage").textContent = status.last_message || "尚未运行";
+}
+
+function renderAutomationRuns(runs) {
+  $("automationRunsCount").textContent = `${runs.length} 条`;
+  $("automationRuns").classList.toggle("empty-state", runs.length === 0);
+  $("automationRuns").innerHTML = runs.length ? runs.map(renderAutomationRun).join("") : "暂无运行记录";
+}
+
+function renderAutomationRun(run) {
+  const statusClass = run.status === "success" ? "ok" : run.status === "running" ? "running" : "fail";
+  const detail = [
+    `拉取 ${run.pulled || 0}`,
+    `完成 ${run.processed || 0}`,
+    `失败 ${run.failed || 0}`,
+    `Note ${run.note_count || 0}`,
+    `卡片 ${run.card_count || 0}`,
+    `Anki ${run.anki_synced || 0}`,
+  ].join(" · ");
+  return `
+    <article class="run-item ${statusClass}">
+      <div>
+        <strong>${escapeHtml(run.finished_at || run.started_at || run.run_id)}</strong>
+        <p>${escapeHtml(modeLabel(run.mode))} · ${escapeHtml(run.status || "-")} · ${detail}</p>
+      </div>
+      ${(run.errors || []).length ? `<ul>${run.errors.map((error) => `<li>${escapeHtml(error)}</li>`).join("")}</ul>` : ""}
+    </article>
+  `;
+}
+
+function modeLabel(mode) {
+  if (mode === "obsidian_only") return "仅拉取到 Obsidian";
+  if (mode === "notes_only") return "拉取并写入笔记";
+  return "完整同步到 Anki";
 }
 
 async function runCloudPull(button, options, successLabel) {
@@ -258,6 +313,40 @@ $("syncBtn").addEventListener("click", async () => {
 $("weeklyBtn").addEventListener("click", () => createReview("weekly"));
 $("monthlyBtn").addEventListener("click", () => createReview("monthly"));
 $("statusBtn").addEventListener("click", refreshStatus);
+$("runNowBtn").addEventListener("click", async () => {
+  const button = $("runNowBtn");
+  setBusy(button, true);
+  try {
+    const result = await api("/api/automation/run", {
+      method: "POST",
+      body: JSON.stringify({ mode: "full", trigger: "manual" }),
+    });
+    toast(result.status === "skipped" ? "上一轮仍在运行" : "已执行一次完整同步");
+    await refreshAutomation();
+  } catch (error) {
+    toast(error.message);
+  } finally {
+    setBusy(button, false);
+  }
+});
+$("pauseAutomationBtn").addEventListener("click", async () => {
+  try {
+    await api("/api/automation/pause", { method: "POST", body: "{}" });
+    toast("自动同步已暂停");
+    await refreshAutomation();
+  } catch (error) {
+    toast(error.message);
+  }
+});
+$("resumeAutomationBtn").addEventListener("click", async () => {
+  try {
+    await api("/api/automation/resume", { method: "POST", body: "{}" });
+    toast("自动同步已恢复");
+    await refreshAutomation();
+  } catch (error) {
+    toast(error.message);
+  }
+});
 $("cloudObsidianBtn").addEventListener("click", () =>
   runCloudPull($("cloudObsidianBtn"), { process_ai: false, sync_anki: false }, "已拉取到 Obsidian")
 );
@@ -283,3 +372,4 @@ async function createReview(kind) {
 }
 
 refreshStatus();
+window.setInterval(() => refreshAutomation().catch(() => {}), 30000);

@@ -116,6 +116,58 @@ python -m app.main pull-inbox --process-ai --sync-anki
 
 [docs-edgeone-pages.md](docs-edgeone-pages.md)
 
+## 本地自动同步
+
+本地服务支持开机后自动定时拉取 Cloud Inbox。配置项在 `config.yaml`：
+
+```yaml
+automation:
+  enabled: true
+  interval_minutes: 10
+  mode: "full"
+  run_on_start: true
+  notify_on_success: false
+  notify_on_failure: true
+```
+
+`mode` 可选：
+
+- `obsidian_only`：只拉取到 Obsidian Source
+- `notes_only`：拉取并生成 Obsidian Note
+- `full`：拉取、生成 Note，并同步 Anki
+
+安装 Windows 登录自动启动：
+
+```powershell
+cd D:\Project\Obsidian_Anki\learning-asset-processor
+.\scripts\install-autostart.ps1
+```
+
+脚本会优先注册 Windows 计划任务；如果当前权限不允许注册计划任务，会自动在当前用户的 Startup 文件夹创建兜底启动脚本。
+
+卸载自动启动：
+
+```powershell
+.\scripts\uninstall-autostart.ps1
+```
+
+手动启动或停止后台服务：
+
+```powershell
+.\scripts\start-background-service.ps1
+.\scripts\stop-background-service.ps1
+```
+
+状态和运行记录保存在：
+
+```text
+app/storage/automation_state.json
+app/storage/automation_runs.json
+app/storage/failed_items.json
+```
+
+如果状态面板显示 `HTTP 404`、`NOT_FOUND` 或 `The site does not exist`，通常是 `config.yaml` 里的 `cloud_inbox.api_url` 仍指向旧域名或 EdgeOne 项目地址不可用。把它改成当前可访问的 EdgeOne 生产域名后，下一轮自动同步会继续尝试。
+
 ## Web 使用流程
 
 1. 粘贴文章、视频字幕、课程内容、读书摘录、会议纪要或 URL。
@@ -207,6 +259,9 @@ python -m app.main init
 - CLI 批处理入口。
 - Vercel Cloud Inbox 手机树洞入口。
 - 本地 `pull-inbox` Agent。
+- 本地自动同步 Scheduler。
+- Windows 登录自动启动脚本。
+- 自动化状态和运行历史记录。
 
 ## 暂未完成能力和 TODO
 

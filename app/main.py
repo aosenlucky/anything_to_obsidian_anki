@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from app.config import PROJECT_ROOT, load_config
@@ -22,10 +23,26 @@ def create_app():
     from fastapi.responses import FileResponse
     from fastapi.staticfiles import StaticFiles
 
-    from app.api import routes_anki, routes_capture, routes_cloud, routes_process, routes_review, routes_status
+    from app.api import (
+        routes_anki,
+        routes_automation,
+        routes_capture,
+        routes_cloud,
+        routes_process,
+        routes_review,
+        routes_status,
+    )
+    from app.services.automation_scheduler import start_runner, stop_runner
 
-    api = FastAPI(title="Learning Asset Processor", version="0.1.0")
+    @asynccontextmanager
+    async def lifespan(api_app: FastAPI):
+        start_runner()
+        yield
+        await stop_runner()
+
+    api = FastAPI(title="Learning Asset Processor", version="0.1.0", lifespan=lifespan)
     api.include_router(routes_status.router)
+    api.include_router(routes_automation.router)
     api.include_router(routes_capture.router)
     api.include_router(routes_cloud.router)
     api.include_router(routes_process.router)

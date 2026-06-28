@@ -79,6 +79,16 @@ class CloudPullRequest(BaseModel):
     dry_run: bool = False
 
 
+class AutomationRunRequest(BaseModel):
+    mode: str | None = None
+    trigger: str = "manual"
+
+
+class AutomationSettingsRequest(BaseModel):
+    enabled: bool | None = None
+    mode: str | None = None
+
+
 class StatusResult(BaseModel):
     deepseek: str
     anki: str

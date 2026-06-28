@@ -264,6 +264,76 @@ svg {
   line-height: 1.72;
 }
 
+.automation-panel {
+  margin: 16px 0;
+  padding: 20px;
+}
+
+.automation-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.automation-grid div {
+  min-height: 76px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-solid);
+}
+
+.automation-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.automation-grid strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 15px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+  background: var(--surface-solid);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-badge.enabled {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 24%, var(--line));
+}
+
+.status-badge.running {
+  color: var(--primary-strong);
+  border-color: color-mix(in srgb, var(--primary) 26%, var(--line));
+}
+
+.status-badge.paused {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 22%, var(--line));
+}
+
+.automation-actions {
+  justify-content: flex-start;
+  margin-top: 14px;
+}
+
+.compact-section {
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
 .command-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -532,6 +602,10 @@ textarea {
   border-left: 4px solid var(--success);
 }
 
+.run-item.running {
+  border-left-color: var(--primary);
+}
+
 .run-item.fail {
   border-left-color: var(--danger);
 }
@@ -596,6 +670,10 @@ textarea {
   .summary-grid {
     grid-template-columns: 1fr 1fr;
   }
+
+  .automation-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 620px) {
@@ -615,6 +693,7 @@ textarea {
   }
 
   .form-grid,
+  .automation-grid,
   .summary-grid {
     grid-template-columns: 1fr;
   }

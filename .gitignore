@@ -6,6 +6,10 @@ __pycache__/
 *.pyc
 .pytest_cache/
 app/storage/*.bak
+app/storage/automation_state.json
+app/storage/automation_runs.json
+app/storage/failed_items.json
+app/storage/service_status.json
 .vercel/
 secrets.generated.env
 cloud-inbox/node_modules/

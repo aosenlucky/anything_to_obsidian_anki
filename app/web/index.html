@@ -41,6 +41,39 @@
         <button type="button" id="statusBtn" class="ghost-btn">刷新连接状态</button>
       </section>
 
+      <section class="automation-panel panel" aria-labelledby="automation-title">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Automation</p>
+            <h2 id="automation-title">自动同步</h2>
+          </div>
+          <span id="automationBadge" class="status-badge">检查中</span>
+        </div>
+
+        <div class="automation-grid">
+          <div><span>模式</span><strong id="automationMode">-</strong></div>
+          <div><span>当前状态</span><strong id="automationRunning">-</strong></div>
+          <div><span>上次运行</span><strong id="automationLast">-</strong></div>
+          <div><span>下次运行</span><strong id="automationNext">-</strong></div>
+        </div>
+
+        <p id="automationMessage" class="muted-text">正在读取后台状态。</p>
+
+        <div class="action-row automation-actions">
+          <button type="button" id="runNowBtn" class="primary-btn">立即完整同步</button>
+          <button type="button" id="pauseAutomationBtn" class="secondary-btn">暂停自动同步</button>
+          <button type="button" id="resumeAutomationBtn" class="ghost-btn">恢复自动同步</button>
+        </div>
+
+        <section class="preview-section compact-section">
+          <div class="section-title">
+            <h3>最近运行</h3>
+            <span id="automationRunsCount">0 条</span>
+          </div>
+          <div id="automationRuns" class="list-stack empty-state">暂无运行记录</div>
+        </section>
+      </section>
+
       <section class="command-grid" aria-label="云端同步路径">
         <button type="button" id="cloudObsidianBtn" class="command-card primary-command">
           <span class="command-icon" aria-hidden="true">
