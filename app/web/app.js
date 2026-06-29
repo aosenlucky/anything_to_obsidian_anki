@@ -5,6 +5,12 @@ const state = {
   notePaths: [],
 };
 
+const operation = {
+  timer: null,
+  steps: [],
+  index: 0,
+};
+
 const $ = (id) => document.getElementById(id);
 
 async function api(path, options = {}) {
@@ -35,9 +41,10 @@ function setBusy(button, busy) {
 }
 
 function setCommandBusy(button, busy) {
-  if (!button) return;
-  button.disabled = busy;
-  button.classList.toggle("is-busy", busy);
+  document.querySelectorAll(".command-card").forEach((item) => {
+    item.disabled = busy;
+    item.classList.toggle("is-busy", busy && item === button);
+  });
 }
 
 async function refreshStatus() {
@@ -106,19 +113,135 @@ function modeLabel(mode) {
   return "完整同步到 Anki";
 }
 
+function cloudSteps(options) {
+  const steps = [
+    { label: "连接云端队列", detail: "正在请求 Cloud Inbox，确认手机端有没有新投递。" },
+    { label: "读取待处理内容", detail: "正在拉取 queued 状态的数据，并检查是否有重复内容。" },
+    { label: "写入 Obsidian Source", detail: "把原始材料保存到本地 Vault 的 Source 目录。" },
+  ];
+  if (options.process_ai) {
+    steps.push({ label: "AI 加工并写入笔记", detail: "调用 DeepSeek 生成结构化 Note 和候选卡片。" });
+  }
+  if (options.sync_anki) {
+    steps.push({ label: "同步 Anki", detail: "把生成的卡片发送给 AnkiConnect，并跳过重复项。" });
+  }
+  steps.push({ label: "整理结果", detail: "正在汇总本次拉取、处理、写入和失败信息。" });
+  return steps;
+}
+
+function startOperation(title, options) {
+  window.clearInterval(operation.timer);
+  operation.steps = cloudSteps(options);
+  operation.index = 0;
+  $("operationTitle").textContent = title;
+  $("operationDetail").textContent = operation.steps[0].detail;
+  $("operationStatus").textContent = "运行中";
+  $("operationStatus").className = "status-badge running";
+  $("metricPulled").textContent = "-";
+  $("metricProcessed").textContent = "-";
+  $("metricNotes").textContent = "-";
+  $("metricCards").textContent = "-";
+  $("progressResults").classList.add("empty-state");
+  $("progressResults").innerHTML = "正在等待服务返回结果。";
+  renderProgressSteps();
+  operation.timer = window.setInterval(() => {
+    if (operation.index < operation.steps.length - 1) {
+      operation.index += 1;
+      $("operationDetail").textContent = operation.steps[operation.index].detail;
+      renderProgressSteps();
+    } else {
+      $("operationDetail").textContent = "服务仍在处理，等待最终结果返回。";
+    }
+  }, 1400);
+}
+
+function finishOperation(result, successLabel) {
+  window.clearInterval(operation.timer);
+  const summary = summarizeCloudResult(result);
+  operation.index = operation.steps.length;
+  $("operationStatus").textContent = summary.failed ? "部分失败" : "已完成";
+  $("operationStatus").className = `status-badge ${summary.failed ? "paused" : "enabled"}`;
+  $("operationTitle").textContent = successLabel;
+  $("operationDetail").textContent =
+    summary.pulled === 0
+      ? "云端队列里暂无新内容，本次没有写入。"
+      : `拉取 ${summary.pulled} 条，完成 ${summary.processed} 条，失败 ${summary.failed} 条。`;
+  $("metricPulled").textContent = `${summary.pulled}`;
+  $("metricProcessed").textContent = `${summary.processed}`;
+  $("metricNotes").textContent = `${summary.notes}`;
+  $("metricCards").textContent = `${summary.cards}`;
+  renderProgressSteps(true, Boolean(summary.failed));
+  renderProgressResults(result);
+}
+
+function failOperation(error) {
+  window.clearInterval(operation.timer);
+  $("operationStatus").textContent = "失败";
+  $("operationStatus").className = "status-badge paused";
+  $("operationDetail").textContent = error.message;
+  $("progressResults").classList.remove("empty-state");
+  $("progressResults").innerHTML = `<article class="run-item fail"><strong>操作失败</strong><p>${escapeHtml(error.message)}</p></article>`;
+  renderProgressSteps(false, true);
+}
+
+function renderProgressSteps(done = false, failed = false) {
+  $("progressSteps").innerHTML = operation.steps
+    .map((step, index) => {
+      const status = failed && index === Math.min(operation.index, operation.steps.length - 1)
+        ? "fail"
+        : done || index < operation.index
+          ? "done"
+          : index === operation.index
+            ? "active"
+            : "pending";
+      return `
+        <div class="progress-step ${status}">
+          <span>${index + 1}</span>
+          <div>
+            <strong>${escapeHtml(step.label)}</strong>
+            <p>${escapeHtml(step.detail)}</p>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function summarizeCloudResult(result) {
+  const rows = result.results || [];
+  return {
+    pulled: Number(result.pulled || 0),
+    processed: rows.filter((row) => row.status === "processed").length,
+    failed: rows.filter((row) => row.status === "failed").length,
+    notes: rows.reduce((total, row) => total + (row.note_paths || []).length, 0),
+    cards: rows.reduce((total, row) => total + (row.card_count || 0), 0),
+  };
+}
+
+function renderProgressResults(result) {
+  const rows = result.results || [];
+  $("progressResults").classList.toggle("empty-state", rows.length === 0);
+  $("progressResults").innerHTML = rows.length
+    ? rows.map(renderCloudRow).join("")
+    : "没有获取到新的云端数据。";
+}
+
 async function runCloudPull(button, options, successLabel) {
   setCommandBusy(button, true);
   $("lastRun").textContent = "云端同步中";
+  startOperation(successLabel, options);
   try {
     const result = await api("/api/cloud/pull", {
       method: "POST",
       body: JSON.stringify(options),
     });
     renderCloudResult(result);
+    finishOperation(result, successLabel);
     toast(`${successLabel}：拉取 ${result.pulled} 条`);
     await refreshStatus();
   } catch (error) {
     $("lastRun").textContent = "操作失败";
+    failOperation(error);
     toast(error.message);
   } finally {
     setCommandBusy(button, false);

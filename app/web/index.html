@@ -33,48 +33,24 @@
       <section class="hero-panel">
         <div class="hero-copy">
           <p class="eyebrow">Family Knowledge Flow</p>
-          <h2>把云端碎片带回家。</h2>
+          <h2>把树洞里的碎片带回家。</h2>
           <p>
-            手机上丢进树洞的内容，可以一键回到 Obsidian，并按需要继续加工成笔记与 Anki 卡片。
+            选择一条路径，系统会显示当前阶段、是否拉到数据，以及写入 Obsidian / Anki 的结果。
           </p>
         </div>
         <button type="button" id="statusBtn" class="ghost-btn">刷新连接状态</button>
       </section>
 
-      <section class="automation-panel panel" aria-labelledby="automation-title">
-        <div class="panel-head">
+      <section class="command-section" aria-labelledby="command-title">
+        <div class="section-headline">
           <div>
-            <p class="eyebrow">Automation</p>
-            <h2 id="automation-title">自动同步</h2>
+            <p class="eyebrow">Core Actions</p>
+            <h2 id="command-title">三个核心操作</h2>
           </div>
-          <span id="automationBadge" class="status-badge">检查中</span>
+          <p>先决定处理深度，再看下面的实时进度。</p>
         </div>
 
-        <div class="automation-grid">
-          <div><span>模式</span><strong id="automationMode">-</strong></div>
-          <div><span>当前状态</span><strong id="automationRunning">-</strong></div>
-          <div><span>上次运行</span><strong id="automationLast">-</strong></div>
-          <div><span>下次运行</span><strong id="automationNext">-</strong></div>
-        </div>
-
-        <p id="automationMessage" class="muted-text">正在读取后台状态。</p>
-
-        <div class="action-row automation-actions">
-          <button type="button" id="runNowBtn" class="primary-btn">立即完整同步</button>
-          <button type="button" id="pauseAutomationBtn" class="secondary-btn">暂停自动同步</button>
-          <button type="button" id="resumeAutomationBtn" class="ghost-btn">恢复自动同步</button>
-        </div>
-
-        <section class="preview-section compact-section">
-          <div class="section-title">
-            <h3>最近运行</h3>
-            <span id="automationRunsCount">0 条</span>
-          </div>
-          <div id="automationRuns" class="list-stack empty-state">暂无运行记录</div>
-        </section>
-      </section>
-
-      <section class="command-grid" aria-label="云端同步路径">
+        <div class="command-grid" aria-label="云端同步路径">
         <button type="button" id="cloudObsidianBtn" class="command-card primary-command">
           <span class="command-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z" /><path d="M12 3v18M4 7.5l8 4.5 8-4.5" /></svg>
@@ -104,6 +80,33 @@
             <small>一键完成拉取、AI 加工、写 Note、同步卡片。</small>
           </span>
         </button>
+        </div>
+      </section>
+
+      <section class="panel progress-panel" aria-labelledby="progress-title">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Run Progress</p>
+            <h2 id="progress-title">运行进度</h2>
+          </div>
+          <span id="operationStatus" class="status-badge">空闲</span>
+        </div>
+
+        <div class="progress-layout">
+          <div class="progress-copy">
+            <p id="operationTitle" class="progress-title">等待选择同步路径</p>
+            <p id="operationDetail" class="muted-text">点击上方任一操作后，这里会显示当前阶段和最终结果。</p>
+          </div>
+          <div class="metric-grid">
+            <div><span>拉取</span><strong id="metricPulled">-</strong></div>
+            <div><span>处理</span><strong id="metricProcessed">-</strong></div>
+            <div><span>Note</span><strong id="metricNotes">-</strong></div>
+            <div><span>Anki</span><strong id="metricCards">-</strong></div>
+          </div>
+        </div>
+
+        <div id="progressSteps" class="progress-steps" aria-live="polite"></div>
+        <div id="progressResults" class="list-stack empty-state">暂无运行结果</div>
       </section>
 
       <section class="workspace">
@@ -219,6 +222,39 @@
               <button type="button" id="monthlyBtn" class="ghost-btn">生成月复盘</button>
             </div>
           </section>
+        </section>
+      </section>
+
+      <section class="automation-panel panel" aria-labelledby="automation-title">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Automation</p>
+            <h2 id="automation-title">自动同步与历史记录</h2>
+          </div>
+          <span id="automationBadge" class="status-badge">检查中</span>
+        </div>
+
+        <div class="automation-grid">
+          <div><span>模式</span><strong id="automationMode">-</strong></div>
+          <div><span>当前状态</span><strong id="automationRunning">-</strong></div>
+          <div><span>上次运行</span><strong id="automationLast">-</strong></div>
+          <div><span>下次运行</span><strong id="automationNext">-</strong></div>
+        </div>
+
+        <p id="automationMessage" class="muted-text">正在读取后台状态。</p>
+
+        <div class="action-row automation-actions">
+          <button type="button" id="runNowBtn" class="primary-btn">立即完整同步</button>
+          <button type="button" id="pauseAutomationBtn" class="secondary-btn">暂停自动同步</button>
+          <button type="button" id="resumeAutomationBtn" class="ghost-btn">恢复自动同步</button>
+        </div>
+
+        <section class="preview-section compact-section">
+          <div class="section-title">
+            <h3>最近运行</h3>
+            <span id="automationRunsCount">0 条</span>
+          </div>
+          <div id="automationRuns" class="list-stack empty-state">暂无运行记录</div>
         </section>
       </section>
     </main>
