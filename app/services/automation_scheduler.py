@@ -48,11 +48,20 @@ class AutomationRunner:
 
     async def _loop(self) -> None:
         auto = automation_config(self.config)
-        interval = max(1, int(auto["interval_minutes"]))
         if auto["enabled"] and auto["run_on_start"]:
             await asyncio.sleep(30)
             await self.run_once(trigger="startup")
         while not self._stop.is_set():
+            self.config = load_config()
+            auto = automation_config(self.config)
+            interval = max(1, int(auto["interval_minutes"]))
+            write_state(
+                self.config,
+                {
+                    "automation_enabled": auto["enabled"],
+                    "interval_minutes": interval,
+                },
+            )
             set_next_run(self.config, interval)
             try:
                 await asyncio.wait_for(self._stop.wait(), timeout=interval * 60)

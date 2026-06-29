@@ -4,9 +4,10 @@ import { cleanEnvValue } from "@/lib/env";
 
 export function requireToken(request: NextRequest, expected: string | undefined, label: string) {
   const expectedToken = cleanEnvValue(expected);
+  const name = label === "INBOX_TOKEN" ? "投递口令" : "本地同步口令";
 
   if (!expectedToken) {
-    return { ok: false, status: 500, message: `${label} is not configured` };
+    return { ok: false, status: 500, message: `${name}尚未在 EdgeOne 环境变量中配置。` };
   }
 
   const authorization = request.headers.get("authorization") || "";
@@ -17,7 +18,7 @@ export function requireToken(request: NextRequest, expected: string | undefined,
   const token = bearer || headerToken;
 
   if (token.trim() !== expectedToken) {
-    return { ok: false, status: 401, message: "Unauthorized" };
+    return { ok: false, status: 401, message: `${name}不正确，请重新保存后再试。` };
   }
 
   return { ok: true, status: 200, message: "OK" };

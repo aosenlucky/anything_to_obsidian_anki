@@ -58,7 +58,7 @@ body {
   z-index: -1;
   background:
     linear-gradient(180deg, rgba(248, 248, 245, 0.84), rgba(248, 248, 245, 0.98) 54%, var(--bg)),
-    url("https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1800&q=78") center 18% / cover no-repeat;
+    url("/static/tree-hollow-bg.jpg") center 34% / cover no-repeat;
   filter: blur(9px) saturate(0.82) brightness(1.08);
   transform: scale(1.03);
 }
@@ -74,7 +74,7 @@ body {
   .page-bg {
     background:
       linear-gradient(180deg, rgba(248, 248, 245, 0.84), rgba(248, 248, 245, 0.98) 54%, var(--bg)),
-      url("https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1800&q=78") center 18% / cover no-repeat;
+      url("/static/tree-hollow-bg.jpg") center 34% / cover no-repeat;
   }
 
   .page-bg::after {

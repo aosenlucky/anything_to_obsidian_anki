@@ -1,12 +1,12 @@
 # Cloud Inbox 部署说明
 
-Cloud Inbox 是手机端“树洞入口”。它部署在 Vercel，数据保存在 Supabase。电脑不需要一直开机；电脑开机后运行本地 Agent，把云端队列拉回 Obsidian，并可继续调用 DeepSeek 和 AnkiConnect。
+Cloud Inbox 是手机端“树洞入口”。它可以部署在 EdgeOne Pages / Makers 或 Vercel，数据保存在 Supabase。电脑不需要一直开机；电脑开机后本地后台服务会自动把云端队列拉回 Obsidian，并可继续调用 DeepSeek 和 AnkiConnect。
 
 ## 架构
 
 ```text
 手机 / 浏览器
-  -> Vercel cloud-inbox
+  -> EdgeOne / Vercel cloud-inbox
   -> Supabase inbox_items
   -> Windows 本地 Agent pull-inbox
   -> Obsidian 10_Sources
@@ -76,9 +76,28 @@ npm run dev
 http://127.0.0.1:3000
 ```
 
-## 4. 部署到 Vercel
+## 4. 部署到 EdgeOne 或 Vercel
 
-进入 cloud-inbox 目录：
+推荐通过 GitHub 导入 EdgeOne Pages / Makers。构建设置：
+
+```text
+框架预设：Next.js
+根目录：cloud-inbox
+输出目录：.next
+构建命令：npm run build
+安装命令：npm install
+```
+
+环境变量：
+
+```text
+SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY
+INBOX_TOKEN
+AGENT_TOKEN
+```
+
+如果继续使用 Vercel，进入 cloud-inbox 目录：
 
 ```powershell
 cd D:\Project\Obsidian_Anki\learning-asset-processor\cloud-inbox
@@ -115,7 +134,19 @@ npx vercel env add INBOX_TOKEN production
 npx vercel env add AGENT_TOKEN production
 ```
 
-## 5. 配置本地 Agent
+## 5. 手机免输入 Token
+
+第一次在手机打开时，可以使用：
+
+```text
+https://你的-EdgeOne-域名/#token=你的-INBOX_TOKEN
+```
+
+页面会把 token 保存到当前浏览器，并清理地址栏。之后把页面加入浏览器收藏夹或添加到主屏幕即可，不需要每次查找、复制、粘贴 token。
+
+如果更换手机、浏览器或清理了网站数据，再打开一次带 `#token=` 的链接即可。
+
+## 6. 配置本地 Agent
 
 复制本地配置：
 
@@ -130,7 +161,7 @@ copy .env.example .env
 ```yaml
 cloud_inbox:
   enabled: true
-  api_url: "https://你的-vercel-域名.vercel.app"
+  api_url: "https://你的-EdgeOne-域名"
   agent_token_env: "CLOUD_INBOX_AGENT_TOKEN"
   poll_limit: 10
 ```
@@ -142,7 +173,7 @@ CLOUD_INBOX_AGENT_TOKEN=你的 AGENT_TOKEN
 DEEPSEEK_API_KEY=你的新 DeepSeek Key
 ```
 
-## 6. 手动拉取
+## 7. 手动拉取
 
 只拉回 Obsidian Source，不调用 AI：
 
@@ -162,24 +193,22 @@ python -m app.main pull-inbox --process-ai --sync-anki
 python -m app.main pull-inbox --dry-run
 ```
 
-## 7. Windows 开机自动拉取
+## 8. Windows 开机自动同步
 
-可以使用 Windows Task Scheduler：
+推荐使用项目内置脚本：
 
-1. 打开“任务计划程序”。
-2. 创建基本任务。
-3. 触发器选择“登录时”。
-4. 操作选择“启动程序”。
-5. 程序填：
-
-```text
-D:\Project\Obsidian_Anki\learning-asset-processor\run-pull-inbox.bat
+```powershell
+cd D:\Project\Obsidian_Anki\learning-asset-processor
+.\scripts\install-autostart.ps1
 ```
 
-如果不想每次都调用 AI，把 `run-pull-inbox.bat` 中的命令改成：
+默认每 60 分钟同步一次。可以在 `config.yaml` 中调整：
 
-```bat
-python -m app.main pull-inbox
+```yaml
+automation:
+  enabled: true
+  interval_minutes: 60
+  mode: "full"
 ```
 
 ## 安全提醒

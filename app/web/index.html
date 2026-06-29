@@ -130,17 +130,17 @@
             </label>
             <label>
               领域提示
-              <select name="domain_hint">
-                <option value="">自动判断</option>
-                <option>Cloud</option>
-                <option>AI</option>
-                <option>English</option>
-                <option>History</option>
-                <option>General</option>
-                <option>Parenting</option>
-                <option>Travel</option>
-                <option>Wealth</option>
-              </select>
+              <input name="domain_hint" list="domainOptions" placeholder="自动判断或输入新领域" />
+              <datalist id="domainOptions">
+                <option value="Cloud"></option>
+                <option value="AI"></option>
+                <option value="English"></option>
+                <option value="History"></option>
+                <option value="General"></option>
+                <option value="Parenting"></option>
+                <option value="Travel"></option>
+                <option value="Wealth"></option>
+              </datalist>
             </label>
           </div>
 

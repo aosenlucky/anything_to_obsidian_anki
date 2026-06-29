@@ -48,7 +48,7 @@ def automation_config(config: AppConfig) -> dict[str, Any]:
     raw = config.section("automation")
     return {
         "enabled": bool(raw.get("enabled", False)),
-        "interval_minutes": int(raw.get("interval_minutes", 10)),
+        "interval_minutes": int(raw.get("interval_minutes", 60)),
         "mode": str(raw.get("mode", "full")),
         "run_on_start": bool(raw.get("run_on_start", True)),
         "notify_on_success": bool(raw.get("notify_on_success", False)),

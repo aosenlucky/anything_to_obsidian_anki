@@ -90,29 +90,27 @@ http://127.0.0.1:8000
 
 ## 手机树洞 Cloud Inbox
 
-项目已包含一个可部署到 Vercel 的 Cloud Inbox：
+项目已包含一个可部署到 EdgeOne Pages / Makers 或 Vercel 的 Cloud Inbox：
 
 ```text
 cloud-inbox/
 ```
 
-它用于手机随时提交内容，电脑开机后再运行本地 Agent 拉取：
-
-```powershell
-python -m app.main pull-inbox
-```
-
-拉取后继续 AI 处理和 Anki 同步：
-
-```powershell
-python -m app.main pull-inbox --process-ai --sync-anki
-```
+它用于手机随时提交内容。电脑开机后，本地后台服务会按配置自动拉取、处理，并可继续同步到 Anki。
 
 完整部署步骤见：
 
 [docs-cloud-inbox.md](docs-cloud-inbox.md)
 
-如果 Vercel 在你的网络环境访问慢，可以迁移到 EdgeOne Pages / Makers：
+手机端首次打开时可以使用免输入口令链接：
+
+```text
+https://你的-EdgeOne-域名/#token=你的-INBOX_TOKEN
+```
+
+页面会把 token 保存到当前浏览器，并自动清理地址栏。之后从手机浏览器收藏夹或主屏幕图标打开，就不需要每次复制粘贴 token。
+
+EdgeOne Pages / Makers 配置说明：
 
 [docs-edgeone-pages.md](docs-edgeone-pages.md)
 
@@ -123,7 +121,7 @@ python -m app.main pull-inbox --process-ai --sync-anki
 ```yaml
 automation:
   enabled: true
-  interval_minutes: 10
+  interval_minutes: 60
   mode: "full"
   run_on_start: true
   notify_on_success: false

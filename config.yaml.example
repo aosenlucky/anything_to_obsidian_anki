@@ -34,7 +34,7 @@ cloud_inbox:
 
 automation:
   enabled: false
-  interval_minutes: 10
+  interval_minutes: 60
   mode: "full"
   run_on_start: true
   notify_on_success: false
