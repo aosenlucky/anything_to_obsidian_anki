@@ -3,6 +3,7 @@
 import {
   BookOpen,
   CheckCircle2,
+  ClipboardPaste,
   Feather,
   KeyRound,
   LockKeyhole,
@@ -45,6 +46,10 @@ function prefillFromLocation() {
   const url = (search.get("url") || search.get("source_url") || "").trim();
   const rawInput = [text, url && !text.includes(url) ? url : ""].filter(Boolean).join("\n\n");
   return { title, rawInput, sourceUrl: url };
+}
+
+function firstUrl(value: string) {
+  return value.match(/https?:\/\/[^\s]+/)?.[0] || "";
 }
 
 export default function Page() {
@@ -98,6 +103,30 @@ export default function Page() {
     setShowTokenSetup(true);
     setState("idle");
     setMessage("已清除本机保存的投递口令。");
+  }
+
+  async function pasteFromClipboard() {
+    if (!navigator.clipboard?.readText) {
+      setState("error");
+      setMessage("当前浏览器不支持直接读取剪贴板，请手动粘贴。");
+      return;
+    }
+
+    try {
+      const text = (await navigator.clipboard.readText()).trim();
+      if (!text) {
+        setState("error");
+        setMessage("剪贴板里没有可投递的文本。");
+        return;
+      }
+      setRawInput((current) => (current ? `${current}\n\n${text}` : text));
+      setSourceUrl((current) => current || firstUrl(text));
+      setState("idle");
+      setMessage("已从剪贴板填入内容。");
+    } catch {
+      setState("error");
+      setMessage("读取剪贴板失败，请使用系统粘贴。");
+    }
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -248,7 +277,13 @@ export default function Page() {
         </label>
 
         <label className="field main-content-field">
-          <span>内容</span>
+          <span className="field-title">
+            内容
+            <button type="button" className="paste-button" onClick={pasteFromClipboard}>
+              <ClipboardPaste size={15} strokeWidth={2} />
+              从剪贴板粘贴
+            </button>
+          </span>
           <textarea
             name="raw_input"
             rows={10}

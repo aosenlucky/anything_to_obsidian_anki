@@ -110,6 +110,8 @@ https://你的-EdgeOne-域名/#token=你的-INBOX_TOKEN
 
 页面会把 token 保存到当前浏览器，并自动清理地址栏。之后从手机浏览器收藏夹或主屏幕图标打开，就不需要每次复制粘贴 token。
 
+日常最简单的投递方式是：复制内容，打开树洞页面，点“从剪贴板粘贴”，再点“放进树洞”。
+
 EdgeOne Pages / Makers 配置说明：
 
 [docs-edgeone-pages.md](docs-edgeone-pages.md)

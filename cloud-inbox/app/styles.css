@@ -97,14 +97,13 @@ textarea:focus-visible {
 }
 
 .page {
-  width: min(1080px, calc(100% - 32px));
+  width: min(760px, calc(100% - 32px));
   min-height: 100dvh;
   margin: 0 auto;
   padding: 24px 0 max(24px, env(safe-area-inset-bottom));
   display: grid;
-  grid-template-columns: minmax(300px, 0.92fr) minmax(410px, 1.08fr);
   gap: 18px;
-  align-items: end;
+  align-items: start;
 }
 
 .hero,
@@ -117,7 +116,7 @@ textarea:focus-visible {
 }
 
 .hero {
-  min-height: min(720px, calc(100dvh - 48px));
+  min-height: 340px;
   padding: clamp(20px, 4vw, 32px);
   display: grid;
   align-content: space-between;
@@ -152,7 +151,7 @@ textarea:focus-visible {
 }
 
 .hero-copy {
-  padding: 54px 0;
+  padding: 42px 0;
 }
 
 .eyebrow {
@@ -172,7 +171,7 @@ p {
 
 h1 {
   max-width: 520px;
-  font-size: clamp(44px, 7vw, 80px);
+  font-size: clamp(44px, 8vw, 68px);
   line-height: 1;
   font-weight: 790;
 }
@@ -278,6 +277,11 @@ h2 {
   gap: 7px;
 }
 
+.field-title {
+  justify-content: space-between;
+  gap: 12px;
+}
+
 input,
 select,
 textarea {
@@ -302,6 +306,17 @@ textarea::placeholder {
 
 .main-content-field textarea {
   min-height: 212px;
+}
+
+.paste-button {
+  min-height: 34px;
+  padding: 0 10px;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--bark);
+  font-size: 13px;
+  font-weight: 720;
 }
 
 .submit-button {
@@ -334,21 +349,6 @@ textarea::placeholder {
   background: color-mix(in srgb, var(--danger) 9%, white);
 }
 
-@media (max-width: 940px) {
-  .page {
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-
-  .hero {
-    min-height: 420px;
-  }
-
-  .hero-copy {
-    padding: 48px 0 22px;
-  }
-}
-
 @media (max-width: 620px) {
   body::before {
     background:
@@ -369,7 +369,7 @@ textarea::placeholder {
   }
 
   .hero {
-    min-height: 52dvh;
+    min-height: 46dvh;
   }
 
   .hero-copy {
@@ -393,12 +393,19 @@ textarea::placeholder {
     grid-template-columns: 1fr;
   }
 
+  .field-title {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .secure-chip,
+  .paste-button,
   .token-actions button {
     justify-content: center;
   }
 
   .token-actions button,
+  .paste-button,
   .submit-button {
     width: 100%;
   }
